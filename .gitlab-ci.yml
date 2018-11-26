@@ -11,5 +11,4 @@ build_main_app:
 start_main_app:
   stage: test
   script:
-    - ls bin
-    - exec bin/deeperttv.out
+    - exec bin/deeperttv
