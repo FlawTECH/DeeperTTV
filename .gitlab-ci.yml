@@ -4,6 +4,9 @@ build_main_app:
   stage: build
   script:
     - make
+  artifacts:
+    paths:
+      -bin/
 
 start_main_app:
   stage: test
