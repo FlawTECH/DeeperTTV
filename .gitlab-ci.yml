@@ -6,7 +6,7 @@ build_main_app:
     - make
   artifacts:
     paths:
-      -bin/
+    - bin/
 
 start_main_app:
   stage: test
