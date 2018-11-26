@@ -9,9 +9,9 @@
             "command": "gcc",
             "args":[
                 "src/*.c",
-                // "lib/*.c",
+                "-Wall",
                 "-g",
-                "-o", "bin/main.exe"
+                "-o", "bin/deeperttv.exe"
             ],
             "group":{
                 "kind": "build",
