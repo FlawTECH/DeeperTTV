@@ -1,0 +1,8 @@
+before_script:
+  - apt-get update -qq && apt-get install -y -qq gcc
+  - gcc --version
+
+main_app:
+  script:
+    - gcc "src/*.c" -g -o "bin/main.o"
+    - exec "bin/main.o"
