@@ -4,3 +4,9 @@ build_main_app:
   stage: build
   script:
     - make
+
+start_main_app:
+  stage: test
+  script:
+    - ls bin
+    - exec bin/deeperttv.out

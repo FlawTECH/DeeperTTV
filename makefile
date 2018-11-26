@@ -1,5 +1,5 @@
 TARGET = deeperttv
-LIBS = -lm
+LIBS = 
 CC = gcc
 CFLAGS = -g -Wall
 
@@ -8,8 +8,8 @@ CFLAGS = -g -Wall
 default: $(TARGET)
 all: default
 
-OBJECTS = $(patsubst %.c, %.o, $(wildcard *.c))
-HEADERS = $(wildcard *.h)
+OBJECTS = $(patsubst %.c, %.o, $(wildcard src/*.c))
+HEADERS = $(wildcard src/*.h)
 
 %.o: %.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -17,7 +17,7 @@ HEADERS = $(wildcard *.h)
 .PRECIOUS: $(TARGET) $(OBJECTS)
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(OBJECTS) -Wall $(LIBS) -o $@
+	$(CC) $(OBJECTS) -Wall $(LIBS) -o bin/$@
 
 clean:
 	-rm -f *.o
