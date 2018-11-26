@@ -2,6 +2,7 @@ TARGET = deeperttv
 LIBS = 
 CC = gcc
 CFLAGS = -g -Wall
+BIN = bin
 
 .PHONY: default all clean
 
@@ -16,8 +17,11 @@ HEADERS = $(wildcard src/*.h)
 
 .PRECIOUS: $(TARGET) $(OBJECTS)
 
-$(TARGET): $(OBJECTS)
+$(TARGET): $(OBJECTS) | $(BIN)
 	$(CC) $(OBJECTS) -Wall $(LIBS) -o bin/$@
+
+$(BIN):
+	mkdir $@
 
 clean:
 	-rm -f *.o
