@@ -10,6 +10,7 @@
             "args":[
                 "src/*.c",
                 "-Wall",
+                "-lws2_32",
                 "-g",
                 "-o", "bin/deeperttv.exe"
             ],
