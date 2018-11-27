@@ -1,8 +1,14 @@
-before_script:
-  - apt-get update -qq && apt-get install -y -qq gcc
-  - gcc --version
+image: gcc
 
-main_app:
+build_main_app:
+  stage: build
   script:
-    - gcc "src/*.c" -g -o "bin/main.o"
-    - exec "bin/main.o"
+    - make
+  artifacts:
+    paths:
+    - bin/
+
+start_main_app:
+  stage: test
+  script:
+    - exec bin/deeperttv
