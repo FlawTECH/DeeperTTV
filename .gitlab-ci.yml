@@ -7,8 +7,3 @@ build_main_app:
   artifacts:
     paths:
     - bin/
-
-start_main_app:
-  stage: test
-  script:
-    - exec bin/deeperttv
