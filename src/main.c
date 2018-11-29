@@ -30,11 +30,12 @@ int sock_free(void)
 
 int main(int argc, char const *argv[])
 {
-    char                irc_nick[] = "neminamonem";
-    char                irc_user[] = "USER neminamonem 0 * neminamonem";
-    char                irc_password[42]; //oauth + PASS
+    char                irc_nick[] = "neminamonem\r\n";
+    char                irc_user[] = "USER neminamonem 0 * :neminamonem\r\n";
+    char                irc_password[44]; //oauth + PASS
     char                irc_hostname[] = "irc.chat.twitch.tv";
     char*               join_string;
+    char*               recv_buffer;
     unsigned int        irc_port = 6667;
     int                 connected = 0;
     int                 sockd;
@@ -55,6 +56,7 @@ int main(int argc, char const *argv[])
     tmp_pass = malloc(37*sizeof(char));
     fscanf(fpass, "%36s", tmp_pass);
     strcat(irc_password, tmp_pass);
+    strcat(irc_password, "\n\r");
     free(tmp_pass);
     
     //Getting IP from host
@@ -70,25 +72,32 @@ int main(int argc, char const *argv[])
     printf("Connecting ...\n");
     connected = connect(sockd, (struct sockaddr*)&addr, sizeof(addr));
     printf("Logging in ...\n");
-    int answer = send(sockd, irc_password, sizeof(irc_password), 0); //PASS
+    send(sockd, irc_password, sizeof(irc_password)-1, 0); //PASS
 
     join_string = malloc(sizeof(irc_nick)+5);
     strcpy(join_string, "NICK ");
     strcat(join_string, irc_nick);
-    answer = send(sockd, join_string, sizeof(join_string), 0); //NICK
+    send(sockd, join_string, sizeof(irc_nick)+4, 0); //NICK
     free(join_string);
 
-    answer = send(sockd, irc_user, sizeof(irc_user), 0); //USER
+    send(sockd, irc_user, sizeof(irc_user)-1, 0); //USER
     printf("Connected !\n");
 
+    connected = 1;
+
     //Joining own channel
-    join_string = malloc(sizeof(irc_nick)+5);
-    strcpy(join_string, "JOIN ");
+    join_string = malloc(sizeof(irc_nick)+6);
+    strcpy(join_string, "JOIN #");
     strcat(join_string, irc_nick);
-    answer = send(sockd, join_string, sizeof(join_string), 0);
+    send(sockd, join_string, sizeof(irc_nick)+6, 0);
     free(join_string);
 
     printf("Joined #%s\n", irc_nick);
+    recv_buffer = malloc(4096);
+    while(connected == 1) {
+        recv(sockd, recv_buffer, 4096, 0);
+        printf("DEBUG: %s\n", recv_buffer);
+    }
     system("pause");
     sock_free();
     return 0;
