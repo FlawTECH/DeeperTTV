@@ -55,7 +55,7 @@ int main(int argc, char const *argv[])
     join_string = malloc(37*sizeof(char));
     fscanf(fpass, "%36s", join_string);
     strcat(irc_password, join_string);
-    strcat(irc_password, "\n\r");
+    strcat(irc_password, "\n");
     free(join_string);
     
     //Getting IP from host
