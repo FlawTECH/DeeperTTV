@@ -30,11 +30,11 @@ int sock_free(void)
 
 int main(int argc, char const *argv[])
 {
-    char                irc_nick[] = "neminamonem\r\n";
+    char                irc_nick[] = "neminamonem";
     char                irc_user[] = "USER neminamonem 0 * :neminamonem\r\n";
     char                irc_password[44]; //oauth + PASS
     char                irc_hostname[] = "irc.chat.twitch.tv";
-    char*               join_string;
+    char*               join_string; //used for various concatenations
     char*               recv_buffer;
     unsigned int        irc_port = 6667;
     int                 connected = 0;
@@ -44,7 +44,7 @@ int main(int argc, char const *argv[])
 
     if(sock_init()!=0)
     {
-        fprintf(stderr, "Error: Unable to initialize Winsock.");
+        fprintf(stderr, "Error: Unable to initialize socket.");
         return -1;
     }
 
@@ -52,12 +52,11 @@ int main(int argc, char const *argv[])
     strcpy(irc_password, "PASS ");
     FILE* fpass;
     fpass = fopen("conf.dat","r");
-    char* tmp_pass;
-    tmp_pass = malloc(37*sizeof(char));
-    fscanf(fpass, "%36s", tmp_pass);
-    strcat(irc_password, tmp_pass);
+    join_string = malloc(37*sizeof(char));
+    fscanf(fpass, "%36s", join_string);
+    strcat(irc_password, join_string);
     strcat(irc_password, "\n\r");
-    free(tmp_pass);
+    free(join_string);
     
     //Getting IP from host
     host = gethostbyname(irc_hostname);
@@ -74,10 +73,9 @@ int main(int argc, char const *argv[])
     printf("Logging in ...\n");
     send(sockd, irc_password, sizeof(irc_password)-1, 0); //PASS
 
-    join_string = malloc(sizeof(irc_nick)+5);
-    strcpy(join_string, "NICK ");
-    strcat(join_string, irc_nick);
-    send(sockd, join_string, sizeof(irc_nick)+4, 0); //NICK
+    join_string = malloc(sizeof(irc_nick)+7);
+    strcat(strcat(strcpy(join_string, "NICK "), irc_nick), "\r\n");
+    send(sockd, join_string, sizeof(irc_nick)+6, 0); //NICK
     free(join_string);
 
     send(sockd, irc_user, sizeof(irc_user)-1, 0); //USER
@@ -86,10 +84,9 @@ int main(int argc, char const *argv[])
     connected = 1;
 
     //Joining own channel
-    join_string = malloc(sizeof(irc_nick)+6);
-    strcpy(join_string, "JOIN #");
-    strcat(join_string, irc_nick);
-    send(sockd, join_string, sizeof(irc_nick)+6, 0);
+    join_string = malloc(sizeof(irc_nick)+8);
+    strcat(strcat(strcpy(join_string, "JOIN #"), irc_nick), "\r\n");
+    send(sockd, join_string, sizeof(join_string)-1, 0);
     free(join_string);
 
     printf("Joined #%s\n", irc_nick);
@@ -98,7 +95,7 @@ int main(int argc, char const *argv[])
         recv(sockd, recv_buffer, 4096, 0);
         printf("DEBUG: %s\n", recv_buffer);
     }
-    system("pause");
     sock_free();
+    system("pause");
     return 0;
 }
