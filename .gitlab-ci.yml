@@ -1,9 +1,0 @@
-image: gcc
-
-build_main_app:
-  stage: build
-  script:
-    - make
-  artifacts:
-    paths:
-    - bin/
