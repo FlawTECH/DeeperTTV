@@ -38,7 +38,15 @@ void inithints(struct addrinfo* hints, int family, int type)
     hints->ai_socktype = type;
 }
 
-void getip(struct addrinfo* hints, struct addrinfo** servinfo)
+int getip(struct addrinfo** servinfo, const char* hostname, const char* port, int ipfamily, int socktype)
 {
+    struct addrinfo     hints;
+    int                 status;
     
+    inithints(&hints, ipfamily, socktype);
+    if((status = getaddrinfo(hostname, port, &hints, servinfo)) != 0) {
+        fprintf(stderr, "Unable to resolve Twitch's IRC IP address: %s", gai_strerror(status));
+        return 1;
+    }
+    return 0;
 }

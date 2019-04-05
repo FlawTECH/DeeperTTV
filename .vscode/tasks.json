@@ -9,6 +9,7 @@
             "command": "gcc",
             "args":[
                 "src/*.c",
+                "src/include/*.c",
                 "-Wall",
                 "-lws2_32",
                 "-g",

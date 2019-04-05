@@ -21,11 +21,10 @@ int main(int argc, char const *argv[])
     const char          irc_hostname[] = "irc.chat.twitch.tv";
     char*               join_string; //used for various concatenations
     char*               recv_buffer;
-    const char          irc_port = 6667;
+    const char          irc_port[] = "6667";
     int                 status = 0;
     int                 socketfd;
     int                 sockd;
-    struct addrinfo     hints;
     struct addrinfo*    serverinfo;
     
     //Initializing sockets
@@ -36,14 +35,7 @@ int main(int argc, char const *argv[])
     }
 
     //Getting IP from host
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-
-    if((status = getaddrinfo(irc_hostname, irc_port, &hints, &serverinfo)) != 0) {
-        fprintf(stderr, "Unable to resolve Twitch's IRC IP address: %s", gai_strerror(status));
-        return EXIT_FAILURE;
-    }
+    getip(&serverinfo, irc_hostname, irc_port, AF_UNSPEC, SOCK_STREAM);
 
     //Filling data for socket
     if(socketfd = socket(serverinfo->ai_family, serverinfo->ai_socktype, serverinfo->ai_protocol) < 0) {

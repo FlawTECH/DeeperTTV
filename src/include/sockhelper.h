@@ -14,6 +14,6 @@
 
 int sock_init();
 int sock_free();
-void getip(struct addrinfo* hints, struct addrinfo** servinfo);
+int getip(struct addrinfo** servinfo, const char* hostname, const char* port, int ipfamily, int socktype);
 
 #endif
