@@ -10,7 +10,7 @@ default: $(TARGET)
 all: default
 
 OBJECTS = $(patsubst %.c, %.o, $(wildcard src/*.c))
-HEADERS = $(wildcard src/*.h)
+HEADERS = $(wildcard src/lib/*.h)
 
 %.o: %.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
