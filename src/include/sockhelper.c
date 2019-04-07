@@ -33,7 +33,7 @@ int sock_free(void)
 
 void inithints(struct addrinfo* hints, int family, int type)
 {
-    memset(&hints, 0, sizeof(hints));
+    memset(hints, 0, sizeof(*hints));
     hints->ai_family = family;
     hints->ai_socktype = type;
 }
@@ -46,7 +46,51 @@ int getip(struct addrinfo** servinfo, const char* hostname, const char* port, in
     inithints(&hints, ipfamily, socktype);
     if((status = getaddrinfo(hostname, port, &hints, servinfo)) != 0) {
         fprintf(stderr, "Unable to resolve Twitch's IRC IP address: %s", gai_strerror(status));
-        return 1;
+        return -1;
     }
     return 0;
+}
+
+int make_sock(struct addrinfo** servinfo, int* socketfd)
+{
+    int     status = 0;
+    //Filling data for socket
+    if((*socketfd = socket((*servinfo)->ai_family, (*servinfo)->ai_socktype, (*servinfo)->ai_protocol)) < 0)
+    {
+        fprintf(stderr, "Unable to initialize socket: %s", strerror(errno));
+        return -1;
+    }
+
+    //Establishing connection
+    if((status = connect(*socketfd, (*servinfo)->ai_addr, (*servinfo)->ai_addrlen)) < 0)
+    {
+        fprintf(stderr, "Unable to connect to remote host: %s", strerror(errno));
+        return -1;
+    }
+    return 0;
+}
+
+int send_info(int socketfd, void* info, int length)
+{
+    char*   data = (char*) info;
+    int     i;
+
+    while(length > 0)
+    {
+        printf("Trying to send %s\n", data);
+        i = send(socketfd, data, length, 0);
+        if(i < 1)
+        {
+            return -1;
+        }
+        data+=i;
+        length-=i;
+    }
+    return 0;
+}
+
+int recv_info(int socketfd, char* response, int expected_length)
+{
+    
+    recv(socketfd, response, )
 }

@@ -15,5 +15,8 @@
 int sock_init();
 int sock_free();
 int getip(struct addrinfo** servinfo, const char* hostname, const char* port, int ipfamily, int socktype);
+int make_sock(struct addrinfo** servinfo, int* socketfd);
+int send_info(int socketfd, void* info, int length);
+int recv_info(int socketfd);
 
 #endif
