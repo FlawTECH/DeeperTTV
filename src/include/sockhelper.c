@@ -77,7 +77,6 @@ int send_info(int socketfd, void* info, int length)
 
     while(length > 0)
     {
-        printf("Trying to send %s\n", data);
         i = send(socketfd, data, length, 0);
         if(i < 1)
         {
@@ -91,6 +90,21 @@ int send_info(int socketfd, void* info, int length)
 
 int recv_info(int socketfd, char* response, int expected_length)
 {
-    
-    recv(socketfd, response, )
+    int i;
+    int original_length = expected_length;
+
+    while(expected_length > 0)
+    {
+        i = recv(socketfd, response, expected_length, 0);
+        if(i < 1)
+        {
+            return -1;
+        }
+
+        response+=i;
+        expected_length-=i;
+    }
+
+    response-=original_length;
+    return 0;
 }

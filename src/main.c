@@ -53,8 +53,8 @@ int main(int argc, char const *argv[])
     
     login(socketfd, irc_user, irc_nick, irc_password);
 
-    sock_free();
     system("PAUSE");
+    sock_free();
     return EXIT_SUCCESS;
 
     //Fetching oauth token from file
