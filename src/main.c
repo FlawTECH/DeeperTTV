@@ -47,7 +47,11 @@ int main(int argc, char const *argv[])
     printf("Logging in ...\n");
 
     FILE* fpass;
-    fpass = fopen("conf.dat","r");
+    if((fpass = fopen("conf.dat","r")) == NULL)
+    {
+        fprintf(stderr, "Error while opening config file: %s\n", strerror(errno));
+        return EXIT_FAILURE;
+    }
     fscanf(fpass, "%36s", irc_password);
 
     login(socketfd, irc_user, irc_nick, irc_password);
