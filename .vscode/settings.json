@@ -1,5 +1,12 @@
 {
     "files.associations": {
-        "irchelper.h": "c"
+        "irchelper.h": "c",
+        "fcntl.h": "c",
+        "io.h": "c",
+        "corecrt_io.h": "c",
+        "corecrt_wio.h": "c",
+        "corecrt_share.h": "c",
+        "types.h": "c",
+        "winsock2.h": "c"
     }
 }

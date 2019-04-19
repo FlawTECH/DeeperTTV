@@ -4,9 +4,12 @@
     #endif
     #include <winsock2.h>
     #include <ws2tcpip.h>
+
 #else
     #include <sys/types.h>
     #include <sys/socket.h>
+    #include <unistd.h>
+    #include <fcntl.h>
 #endif
 
 #include <stdio.h>
@@ -51,17 +54,27 @@ int getip(struct addrinfo** servinfo, const char* hostname, const char* port, in
     return 0;
 }
 
-int make_sock(struct addrinfo** servinfo, int* socketfd)
+int make_sock(struct addrinfo** servinfo, int* socketfd, u_long nonblocking)
 {
     int     status = 0;
-    //Filling data for socket
+    // Filling data for socket
     if((*socketfd = socket((*servinfo)->ai_family, (*servinfo)->ai_socktype, (*servinfo)->ai_protocol)) < 0)
     {
         fprintf(stderr, "Unable to initialize socket: %s", strerror(errno));
         return -1;
     }
 
-    //Establishing connection
+    // Non blocking socket
+    if(nonblocking == 1)
+    {
+        #ifdef _WIN32
+            ioctlsocket(socketfd, FIONBIO, &nonblocking);
+        #else
+            fcntl(socketfd, F_SETFL, O_NONBLOCK);
+        #endif
+    }
+
+    // Establishing connection
     if((status = connect(*socketfd, (*servinfo)->ai_addr, (*servinfo)->ai_addrlen)) < 0)
     {
         fprintf(stderr, "Unable to connect to remote host: %s", strerror(errno));
@@ -98,6 +111,7 @@ int recv_info(int socketfd, char* response, int expected_length)
         i = recv(socketfd, response, expected_length, 0);
         if(i < 1)
         {
+            fprintf(stderr, "No data.\n");
             return -1;
         }
 

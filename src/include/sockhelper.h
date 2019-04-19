@@ -13,12 +13,13 @@
 
 #define RECV_MAX = 4096
 
+
 #endif
 
 int sock_init();
 int sock_free();
 int getip(struct addrinfo** servinfo, const char* hostname, const char* port, int ipfamily, int socktype);
-int make_sock(struct addrinfo** servinfo, int* socketfd);
+int make_sock(struct addrinfo** servinfo, int* socketfd, int type);
 int send_info(int socketfd, void* info, int length);
 int recv_info(int socketfd, char* response, int expected_length);
 

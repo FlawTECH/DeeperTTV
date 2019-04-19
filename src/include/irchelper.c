@@ -40,7 +40,6 @@ int login(int socketfd, const char* user, const char* nick, const char* password
     char*   full_password;
     char*   full_login;
     char    response_holder[MAX_CMD_LENGTH];
-    char    cap_msg[] = "CAP LS 302\r\n";
     int     login_length;
 
     full_password = concat_cmd("PASS", password, "");
@@ -52,10 +51,11 @@ int login(int socketfd, const char* user, const char* nick, const char* password
     memset(full_login, 0, login_length);
     strcat(strcat(strcpy(full_login, full_password), full_nick), full_user);
 
-    send_info(socketfd, cap_msg, 12);
-    // recv_info(socketfd, response_holder, MAX_CMD_LENGTH);
-    // printf("Response: %s", response_holder);
-    send_info(socketfd, full_login, login_length-1);    // -1 To remove \0
+    if(send_info(socketfd, full_login, login_length-1) < 0)    // -1 To remove \0
+    {
+        fprintf(stderr, "Unable to login.\n");
+        return -1;
+    }
     // recv_info(socketfd, response_holder, MAX_CMD_LENGTH);
     // printf("Response: %s", response_holder);
 
