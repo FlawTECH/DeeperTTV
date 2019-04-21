@@ -15,8 +15,7 @@
 
 int main(int argc, char const *argv[])
 {
-    char                irc_nick[] = "deeperttv";
-    // char                irc_user[] = "USER deeperttv 0 * :deeperttv\r\n";
+    char                irc_nick[] = "deeperttv";   // TODO put creds in conf.dat
     char                irc_user[] = "deeperttv";
     char                irc_password[37];
     const char          irc_hostname[] = "irc.chat.twitch.tv";
@@ -44,6 +43,7 @@ int main(int argc, char const *argv[])
         return EXIT_FAILURE;
     }
 
+    // Logging in
     printf("Logging in ...\n");
 
     FILE* fpass;
@@ -54,7 +54,12 @@ int main(int argc, char const *argv[])
     }
     fscanf(fpass, "%36s", irc_password);
 
-    login(socketfd, irc_user, irc_nick, irc_password);
+    if(login(socketfd, irc_user, irc_nick, irc_password) < 0)
+    {
+        return EXIT_FAILURE;
+    }
+
+
 
     system("PAUSE");
     sock_free();

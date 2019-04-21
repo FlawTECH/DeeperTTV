@@ -1,8 +1,66 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "irchelper.h"
 #include "sockhelper.h"
-#define MAX_CMD_LENGTH 512
+
+free_messages(struct msg_list* messages)
+{
+    if(messages->next == NULL)
+    {
+        free(messages->msg);
+    }
+    while(messages->next != NULL)
+    {
+        messages = messages->next;
+        messages->prev = 0;
+        free(messages->msg);        
+        free(messages->prev);
+    }
+}
+
+// Translates raw data into IRC messages
+int recv_msg(int socketfd, struct msg_list* messages, char* overflow)
+{
+    char                tmp_message[IRC_MAX_MSG_LEN+1] = "";
+    char*               eol_pointer;
+    struct msg_list*    msg_walker;
+    int                 msg_length;
+    int                 msg_count = 0;
+
+    msg_walker = messages;
+
+    if(recv_info(socketfd, tmp_message, IRC_MAX_MSG_LEN)>0)
+    {
+        // Looking for EOL according to the IRC spec (\r\n)
+        eol_pointer = strchr(tmp_message, '\r');
+        while(eol_pointer != NULL)
+        {
+            if(eol_pointer-tmp_message < IRC_MAX_MSG_LEN)
+            {
+                // Found EOL
+                if(eol_pointer+1 == '\n')
+                {
+                    // TODO: malloc messages
+                    msg_count+=1;
+                    
+                    if(msg_count > 1)
+                    {
+                        malloc(msg_walker->next);
+                        msg_walker->next->prev = msg_walker;
+                        msg_walker = msg_walker->next;
+                    }
+
+                    //TODO determine msg length and malloc msg
+                }
+            }
+            eol_pointer = strchr(eol_pointer+1, '\r');
+        }
+        
+
+    }
+
+}
 
 // Concatenates commands for sending
 // TODO fix ugly USER cmd
@@ -35,12 +93,13 @@ char* concat_cmd(const char* cmd, const char* args, const char* suffix)
 // Login to IRC
 int login(int socketfd, const char* user, const char* nick, const char* password)
 {
-    char*   full_user;
-    char*   full_nick;
-    char*   full_password;
-    char*   full_login;
-    char    response_holder[MAX_CMD_LENGTH];
-    int     login_length;
+    char*               full_user;
+    char*               full_nick;
+    char*               full_password;
+    char*               full_login;
+    char*               overflow;
+    int                 login_length;
+    struct msg_list*    messages; 
 
     full_password = concat_cmd("PASS", password, "");
     full_nick = concat_cmd("NICK", nick, "");
@@ -56,13 +115,18 @@ int login(int socketfd, const char* user, const char* nick, const char* password
         fprintf(stderr, "Unable to login.\n");
         return -1;
     }
-    // recv_info(socketfd, response_holder, MAX_CMD_LENGTH);
-    // printf("Response: %s", response_holder);
 
     free(full_password);
     free(full_nick);
     free(full_user);
     free(full_login);
+
+    // Printing server welcome message
+    messages = malloc(sizeof(struct msg_list));
+    if(recv_msg(socketfd, messages, overflow) > -1)
+    {
+        printf("%s", messages->msg);
+    }
 
     return 0;
 }

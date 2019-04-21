@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 #include <errno.h>
+#include "sockhelper.h"
 
 int sock_init(void)
 {
@@ -111,14 +112,18 @@ int recv_info(int socketfd, char* response, int expected_length)
         i = recv(socketfd, response, expected_length, 0);
         if(i < 1)
         {
-            fprintf(stderr, "No data.\n");
-            return -1;
+            if(expected_length == original_length)
+            {
+                fprintf(stderr, "No data.\n");
+                return -1;
+            }
+            return 0;
         }
 
         response+=i;
         expected_length-=i;
     }
-
     response-=original_length;
+    response[original_length] = '\0';
     return 0;
 }
