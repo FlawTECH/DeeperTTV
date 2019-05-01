@@ -10,6 +10,6 @@
     };
 
     int login(int socketfd, const char* user, const char* nick, const char* password);
-    int recv_msg(int socketfd, struct msg_list* messages, char* overflow);
+    int recv_msg(int socketfd, struct msg_list* messages, char** overflow);
 
 #endif

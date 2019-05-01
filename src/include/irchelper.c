@@ -4,7 +4,7 @@
 #include "irchelper.h"
 #include "sockhelper.h"
 
-free_messages(struct msg_list* messages)
+void free_messages(struct msg_list* messages)
 {
     if(messages->next == NULL)
     {
@@ -20,10 +20,11 @@ free_messages(struct msg_list* messages)
 }
 
 // Translates raw data into IRC messages
-int recv_msg(int socketfd, struct msg_list* messages, char* overflow)
+int recv_msg(int socketfd, struct msg_list* messages, char** overflow)  // TODO handle overflow
 {
     char                tmp_message[IRC_MAX_MSG_LEN+1] = "";
     char*               eol_pointer;
+    char*               last_msg_start;
     struct msg_list*    msg_walker;
     int                 msg_length;
     int                 msg_count = 0;
@@ -33,33 +34,43 @@ int recv_msg(int socketfd, struct msg_list* messages, char* overflow)
     if(recv_info(socketfd, tmp_message, IRC_MAX_MSG_LEN)>0)
     {
         // Looking for EOL according to the IRC spec (\r\n)
+        last_msg_start = tmp_message;
         eol_pointer = strchr(tmp_message, '\r');
         while(eol_pointer != NULL)
         {
             if(eol_pointer-tmp_message < IRC_MAX_MSG_LEN)
             {
-                // Found EOL
-                if(eol_pointer+1 == '\n')
+                if(last_msg_start != tmp_message)
                 {
-                    // TODO: malloc messages
+                    last_msg_start+=1;
+                }
+                eol_pointer+=1;
+                if(*(eol_pointer) == '\n')
+                {
+                    // Found EOL
                     msg_count+=1;
-                    
                     if(msg_count > 1)
                     {
-                        malloc(msg_walker->next);
+                        msg_walker->next = malloc(sizeof(struct msg_list));
                         msg_walker->next->prev = msg_walker;
                         msg_walker = msg_walker->next;
                     }
 
-                    //TODO determine msg length and malloc msg
+                    /*
+                    // Determine msg length and malloc msg
+                    // Msg length is distance from start to \n
+                    */
+                    msg_length = eol_pointer - last_msg_start + 1;
+                    msg_walker->msg = malloc(msg_length+1);
+                    strncpy(msg_walker->msg, last_msg_start, msg_length);
+                    last_msg_start = eol_pointer;
                 }
             }
             eol_pointer = strchr(eol_pointer+1, '\r');
         }
-        
-
+        return 0;
     }
-
+    return -1;
 }
 
 // Concatenates commands for sending
@@ -123,9 +134,13 @@ int login(int socketfd, const char* user, const char* nick, const char* password
 
     // Printing server welcome message
     messages = malloc(sizeof(struct msg_list));
-    if(recv_msg(socketfd, messages, overflow) > -1)
+    if(recv_msg(socketfd, messages, &overflow) > -1)
     {
         printf("%s", messages->msg);
+    }
+    else
+    {
+        fprintf(stderr, "No MOTD received from server.");
     }
 
     return 0;

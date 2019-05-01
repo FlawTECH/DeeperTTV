@@ -10,10 +10,6 @@
             "args":[
                 "src/*.c",
                 "src/include/*.c",
-                "-IC:\\Users\\PassTECH\\Documents\\dev\\lib\\c\\libevent\\include",
-                "-IC:\\Users\\PassTECH\\Documents\\dev\\lib\\c\\libevent64\\include",
-                "-LC:\\Users\\PassTECH\\Documents\\dev\\lib\\c\\libevent64\\lib\\Release",
-                "-levent",
                 "-Wall",
                 "-lws2_32",
                 "-g",

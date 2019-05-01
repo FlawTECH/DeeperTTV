@@ -69,16 +69,16 @@ int make_sock(struct addrinfo** servinfo, int* socketfd, u_long nonblocking)
     if(nonblocking == 1)
     {
         #ifdef _WIN32
-            ioctlsocket(socketfd, FIONBIO, &nonblocking);
+            ioctlsocket(*socketfd, FIONBIO, &nonblocking);
         #else
-            fcntl(socketfd, F_SETFL, O_NONBLOCK);
+            fcntl(*socketfd, F_SETFL, O_NONBLOCK);
         #endif
     }
 
     // Establishing connection
     if((status = connect(*socketfd, (*servinfo)->ai_addr, (*servinfo)->ai_addrlen)) < 0)
     {
-        fprintf(stderr, "Unable to connect to remote host: %s", strerror(errno));
+        fprintf(stderr, "Unable to connect to remote host: %s", strerror(errno));   //TODO check connect with non blocking sockets
         return -1;
     }
     return 0;
